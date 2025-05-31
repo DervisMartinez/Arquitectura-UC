@@ -1,0 +1,52 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+\definecolor{inst}{RGB}{0, 70, 120}
+\newcommand{\mips}[2]{\textcolor{inst}{\textbf{#1}} & #2 \\}
+
+\begin{document}
+
+\section*{Resumen MIPS - Arquitectura de Computadores}
+\textbf{Estudiante:} Dervis Martínez \\ 
+\textbf{Cedula} V-31456326 \\ 
+\textbf{Fecha:} \today
+
+\subsection*{Instrucciones Básicas}
+\begin{tabular}{ll}
+  \mips{add}{Suma: \$rd = \$rs + \$rt}
+  \mips{sub}{Resta: \$rd = \$rs - \$rt}
+  \mips{lw}{Carga palabra: \$rt = Mem[\$rs + offset]}
+  \mips{sw}{Almacena palabra: Mem[\$rs + offset] = \$rt}
+  \mips{beq}{Salto si igual: if(\$rs == \$rt) PC = PC + 4 + offset}
+  \mips{j}{Salto incondicional: PC = dirección}
+\end{tabular}
+
+\subsection*{Formatos de Instrucción}
+\begin{itemize}
+  \item \textbf{Tipo R}: opcode(6) + rs(5) + rt(5) + rd(5) + shamt(5) + funct(6)
+  \item \textbf{Tipo I}: opcode(6) + rs(5) + rt(5) + immediate(16)
+  \item \textbf{Tipo J}: opcode(6) + address(26)
+\end{itemize}
+
+\subsection*{Registros Esenciales}
+\begin{tabular}{lll}
+  \textbf{Registro} & \textbf{Número} & \textbf{Uso} \\
+  \$zero & 0 & Siempre vale 0 \\
+  \$t0-\$t9 & 8-15, 24-25 & Temporales \\
+  \$s0-\$s7 & 16-23 & Variables guardadas \\
+  \$sp & 29 & Puntero de pila \\
+  \$ra & 31 & Dirección de retorno \\
+\end{tabular}
+
+\subsection*{Ejemplo Práctico}
+\begin{verbatim}
+# Suma 5 + 3 y guarda en $s0
+addi $t0, $zero, 5
+addi $t1, $zero, 3
+add $s0, $t0, $t1
+\end{verbatim}
+
+\end{document}
