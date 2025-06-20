@@ -1,0 +1,95 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\geometry{margin=1in}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{lightgray}{rgb}{0.95,0.95,0.95}
+
+\lstset{
+  backgroundcolor=\color{lightgray},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  showstringspaces=false
+}
+
+\title{Ejemplos de Uso del Comando \texttt{time}}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+El comando \texttt{time} (como \texttt{./time}, o simplemente \texttt{time}) se utiliza en sistemas Unix/Linux para medir el tiempo que tarda en ejecutarse un programa o comando. Muestra tres métricas clave:
+
+\section*{Explicación de los tiempos obtenidos}
+
+Al ejecutar un comando con \texttt{time}, se obtienen tres tipos de tiempo que permiten analizar el rendimiento del proceso:
+
+\begin{itemize}
+  \item \textbf{real}: también conocido como \textit{elapsed time}, es el tiempo total que transcurre desde que se inicia el comando hasta que finaliza. Incluye el tiempo de espera, ejecución, y cualquier retardo, por lo tanto puede ser afectado por otras tareas en el sistema.
+  
+  \item \textbf{user}: es el tiempo que la CPU dedicó a ejecutar instrucciones del programa en modo usuario (código del propio programa, sin contar llamadas al sistema).
+  
+  \item \textbf{sys}: es el tiempo que la CPU dedicó a ejecutar instrucciones del sistema operativo en nombre del programa, es decir, las llamadas al sistema (como acceso a archivos, entrada/salida, etc.).
+\end{itemize}
+
+Estos valores ayudan a determinar si el programa es intensivo en CPU, si hace muchas operaciones de sistema, o si pasa mucho tiempo esperando (por ejemplo, en entrada/salida o procesos externos).
+
+\section*{Ejemplo básico}
+
+\begin{lstlisting}
+time ls -l
+\end{lstlisting}
+
+Esto mostrará cuánto tiempo tarda en ejecutarse el comando \texttt{ls -l}.
+
+\section*{Ejemplo con un script ejecutable}
+
+\begin{lstlisting}
+chmod +x script.sh
+time ./script.sh
+\end{lstlisting}
+
+Esto mide cuánto tiempo tarda en ejecutarse el script \texttt{script.sh}.
+
+\section*{Ejemplo con un programa compilado}
+
+\begin{lstlisting}
+gcc programa.c -o programa
+time ./programa
+\end{lstlisting}
+
+Esto compila y luego mide el tiempo de ejecución del binario \texttt{programa}.
+
+\section*{Ejemplo con \texttt{sleep} (para simular una tarea)}
+
+\begin{lstlisting}
+time sleep 3
+\end{lstlisting}
+
+Resultado típico:
+\begin{verbatim}
+real    0m3.003s
+user    0m0.000s
+sys     0m0.001s
+\end{verbatim}
+
+\section*{Usando \texttt{/usr/bin/time} para más detalles}
+
+\begin{lstlisting}
+/usr/bin/time -v ./programa
+\end{lstlisting}
+
+Incluye estadísticas detalladas como uso de memoria, E/S de disco, cantidad de cambios de contexto, etc.
+
+\end{document}

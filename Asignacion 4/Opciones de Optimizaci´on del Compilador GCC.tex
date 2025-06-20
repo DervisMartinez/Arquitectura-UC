@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\geometry{margin=1in}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+
+\definecolor{lightgray}{rgb}{0.95,0.95,0.95}
+
+\lstset{
+  backgroundcolor=\color{lightgray},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  showstringspaces=false
+}
+
+\title{Opciones de Optimización del Compilador \texttt{GCC}}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+El compilador \texttt{gcc} (GNU Compiler Collection) ofrece diversas opciones de optimización que permiten mejorar el rendimiento del código generado. Estas opciones controlan cómo se transforma el código fuente en instrucciones de máquina más eficientes.
+
+\section*{Niveles de optimización estándar}
+
+\begin{itemize}
+  \item \textbf{-O0}: Desactiva las optimizaciones. Es el valor por defecto. Útil para depurar, ya que el código generado se corresponde estrechamente con el código fuente.
+
+  \item \textbf{-O1}: Activa optimizaciones básicas que no ralentizan demasiado la compilación. Reduce el tamaño del código y mejora el rendimiento sin afectar mucho la depuración.
+
+  \item \textbf{-O2}: Activa más optimizaciones que \texttt{-O1}, incluyendo eliminaciones de código muerto, movimientos de código, y más. Buena opción general para mejorar el rendimiento sin riesgos altos.
+
+  \item \textbf{-O3}: Incluye todas las optimizaciones de \texttt{-O2} y añade otras más agresivas, como desenrollado de bucles e inlining más agresivo. Puede aumentar el tamaño del binario.
+
+  \item \textbf{-Os}: Similar a \texttt{-O2} pero enfocada en minimizar el tamaño del código generado. Ideal para sistemas embebidos o con memoria limitada.
+
+  \item \textbf{-Ofast}: Activa todas las optimizaciones de \texttt{-O3} y algunas adicionales que pueden romper estrictamente el estándar del lenguaje (como ignorar la precisión de coma flotante en ciertos casos).
+
+\end{itemize}
+
+\section*{Otras opciones útiles}
+
+\begin{itemize}
+  \item \textbf{-march=native}: Optimiza el código para la arquitectura del procesador actual.
+
+  \item \textbf{-funroll-loops}: Desenrolla bucles manualmente para reducir el número de saltos y mejorar el rendimiento en ciclos intensivos.
+
+  \item \textbf{-finline-functions}: Fuerza la expansión en línea de funciones pequeñas (útil para evitar llamadas a funciones y ganar velocidad).
+
+  \item \textbf{-fomit-frame-pointer}: Elimina el puntero de marco si no es necesario. Aumenta el rendimiento pero puede dificultar la depuración.
+
+  \item \textbf{-flto}: Activación de \textit{Link Time Optimization}, que permite optimizaciones adicionales durante la vinculación del programa.
+
+\end{itemize}
+
+\section*{Ejemplo de compilación optimizada}
+
+\begin{lstlisting}
+gcc -O2 -march=native -funroll-loops -o programa programa.c
+\end{lstlisting}
+
+Este comando compila \texttt{programa.c} con optimizaciones de nivel 2, orientadas a la arquitectura del procesador actual y desenrollado de bucles.
+
+\section*{Recomendaciones}
+
+\begin{itemize}
+  \item Para desarrollo: usar \texttt{-O0} o \texttt{-O1} junto con \texttt{-g} para facilitar la depuración.
+  \item Para producción: usar \texttt{-O2} o \texttt{-O3} según los requisitos de rendimiento.
+  \item Probar con \texttt{-flto} para obtener mejoras adicionales si se compila y enlaza todo con \texttt{gcc}.
+\end{itemize}
+
+\end{document}

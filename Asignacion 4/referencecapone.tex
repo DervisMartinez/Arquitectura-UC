@@ -1,0 +1,97 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\geometry{margin=1in}
+
+\title{Universidad de Carabobo \\ Departamento de Computaci\'on \\ Arquitectura del Computador \\ \vspace{1em} \Huge Hoja de Referencia Detallada: Prestaciones de Computadores}
+\author{Nombre: Dervis Mart\'inez}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{1. Unidades del Sistema Internacional (SI)}
+\begin{itemize}
+  \item \textbf{Tiempo:} segundos (\si{s}), milisegundos (\si{ms}), microsegundos (\si{\micro s}), nanosegundos (\si{ns}), picosegundos (\si{ps})
+  \item \textbf{Frecuencia:} hertzios (\si{Hz} = \si{s^{-1}}), gigahertz (\si{GHz} = \num{1e9}~\si{Hz})
+  \item \textbf{Capacidad de almacenamiento:} bits (b), bytes (B), \si{\kilo\byte}, \si{\mega\byte}, \si{\giga\byte}
+  \item \textbf{Energ\'ia y potencia:} vatios (\si{W}), voltios (\si{V}), faradios (\si{F})
+\end{itemize}
+
+\section*{2. Relaciones y Conversiones}
+\begin{itemize}
+  \item \textbf{Conversi\'on de frecuencia a periodo:} \
+    \[ T = \frac{1}{f} \]
+    Ejemplo: $f = \SI{2}{GHz} \Rightarrow T = \frac{1}{2 \times 10^9} = \SI{0.5}{ns}$
+
+  \item \textbf{Conversi\'on de tiempo a frecuencia:} \
+    \[ f = \frac{1}{T} \]
+    Ejemplo: $T = \SI{250}{ps} \Rightarrow f = \SI{4}{GHz}$
+
+  \item \textbf{C\'alculo de CPI:} \
+    \[ \text{CPI} = \frac{\text{Ciclos de reloj}}{\# \text{Instrucciones}} \]
+
+  \item \textbf{Conversi\'on de unidades de memoria:} \
+    \[ \SI{1}{kB} = 1024~\text{bytes}, \quad \SI{1}{MB} = 1024~\si{kB} \]
+\end{itemize}
+
+\section*{3. Prestaciones de la CPU}
+\subsection*{3.1 Definici\'on de Tiempo de CPU}
+\[ \text{CPU Time} = \# \text{Instrucciones} \times \text{CPI} \times T_{ciclo} \]
+\[ \text{CPU Time} = \frac{\# \text{Instrucciones} \times \text{CPI}}{\text{Frecuencia}} \]
+
+\subsection*{3.2 Conceptos Clave}
+\begin{itemize}
+  \item \textbf{Instrucciones:} operaciones ejecutadas por el procesador.
+  \item \textbf{CPI (Ciclos por instrucci\'on):} media de ciclos que tarda una instrucci\'on en ejecutarse.
+  \item \textbf{Frecuencia de reloj:} \# de ciclos por segundo (\si{Hz})
+  \item \textbf{Tiempo de ciclo:} inverso de la frecuencia.
+\end{itemize}
+
+\textbf{Ejemplo:} $I = 5 \times 10^9$, $CPI = 1.5$, $f = \SI{2.5}{GHz}$
+\[ \text{CPU Time} = \frac{5 \times 10^9 \times 1.5}{2.5 \times 10^9} = 3.0~\si{s} \]
+
+\subsection*{3.3 C\'alculo de Ciclos de reloj}
+\[ \text{Ciclos} = \# \text{Instrucciones} \times \text{CPI} \]
+
+\subsection*{3.4 Comparaci\'on entre CPUs}
+\textbf{Ejemplo:} Máquina A: $T_A = 10~\si{s}$, $f_A = \SI{2}{GHz}$
+\[ C_A = 10 \times 2 \times 10^9 = 2 \times 10^{10} \text{ ciclos} \]
+Si B usa 1.2 veces más ciclos y queremos $T_B = 6~\si{s}$:
+\[ C_B = 2.4 \times 10^{10}, \quad f_B = \frac{C_B}{T_B} = 4~\si{GHz} \]
+
+\section*{4. MIPS y Comparaciones}
+\[ \text{MIPS} = \frac{f}{\text{CPI} \times 10^6} \]
+\textbf{Ejemplo:} $f = \SI{3}{GHz}, CPI = 1.5 \Rightarrow \text{MIPS} = 2000$
+
+\section*{5. Ley de Amdahl}
+\[ \text{Speedup} = \frac{1}{(1 - P) + \frac{P}{S}} \]
+\textbf{Ejemplo:} 80\% optimizable, objetivo $5\times$ m\'as r\'apido:
+\[ \frac{1}{(1 - 0.8) + \frac{0.8}{S}} = 5 \Rightarrow S = \text{inviable} \]
+
+\section*{6. Potencia Din\'amica}
+\[ P = C \cdot V^2 \cdot f \]
+\textbf{Ejemplo:} $C = \SI{1e-9}{F}, V = \SI{1.2}{V}, f = \SI{2}{GHz}$
+\[ P = 2.88~\si{W} \]
+
+\section*{7. Evaluaci\'on con SPEC}
+\subsection*{7.1 SPECratio}
+\[ \text{SPECratio} = \frac{T_{ref}}{T_{medido}} \]
+\subsection*{7.2 Media geom\'etrica}
+\[ G = \left( \prod_{i=1}^{n} x_i \right)^{1/n} \]
+
+\subsection*{7.3 SPECpower}
+\[ \text{ssj\_ops por vatio} = \frac{\sum_{i=0}^{10} \text{ssj\_ops}_i}{\sum_{i=0}^{10} \text{potencia}_i} \]
+
+\section*{8. Consideraciones Finales}
+\begin{itemize}
+  \item El tiempo \textbf{total} es la m\'etrica principal de prestaciones.
+  \item El CPI depende de la mezcla de instrucciones.
+  \item No confiar solo en MIPS o frecuencia.
+  \item Usar herramientas para medir instrucciones y ciclos.
+\end{itemize}
+
+\end{document}
