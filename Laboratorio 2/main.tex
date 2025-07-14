@@ -1,0 +1,117 @@
+\documentclass[12pt]{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\geometry{a4paper, margin=2.5cm}
+
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection.}{0.5em}{}
+
+\begin{document}
+
+% Portada
+\begin{titlepage}
+    \begin{center}
+        \large{\textbf{UNIVERSIDAD DE CARABOBO}} \\
+        \large{Facultad Experimental de Ciencias y Tecnología (FacyT)} \\
+        \large{Bárbula - Carabobo} \\
+        \vfill
+        \Huge{\textbf{Informe}} \\
+        \huge{Práctica de Laboratorio 1} \\
+        \vfill
+        \textbf{Bachilleres:} \\
+        Samuel Cordero \hfill CI: 31.678.592 \\
+        Dervis Martínez \hfill CI: 31.456.326 \\
+        \vspace{1cm} \\
+        \textbf{Docente:} José Canache \\
+        \vfill
+        \large{Julio, 2025}
+    \end{center}
+\end{titlepage}
+
+% Contenido
+\section*{INFORME DE LABORATORIO 2 - ARQUITECTURA MIPS32}
+\subsection*{Algoritmos de Ordenamiento: Bubble Sort y QuickSort}
+
+\section{Diferencias entre registros temporales y guardados}
+Los registros temporales (\$t0--\$t9) son utilizados para almacenar valores intermedios que no requieren persistencia después de llamadas a procedimientos. Su contenido puede sobrescribirse sin previo aviso. Los registros guardados (\$s0--\$s7), por otro lado, deben preservar su valor entre llamadas a funciones, y si se usan dentro de un procedimiento, deben guardarse y restaurarse usando la pila.
+
+En esta práctica, Bubble Sort fue implementado completamente dentro del procedimiento principal (\texttt{main}), por lo que no se utilizaron subrutinas y únicamente se emplearon registros temporales. Sin embargo, QuickSort, al ser un algoritmo recursivo, sí requiere dividir el problema en subproblemas mediante llamadas a funciones (subrutinas). Por ello, en una implementación completa de QuickSort en MIPS, se hace necesario el uso de la pila para preservar el estado entre llamadas recursivas, lo cual implica el uso adecuado de registros guardados para asegurar la coherencia de datos entre niveles de recursión.
+
+\section{Diferencias entre \$a0--\$a3, \$v0--\$v1 y \$ra}
+Los registros \$a0--\$a3 se utilizan para pasar argumentos a funciones o al sistema.\\
+Los registros \$v0 y \$v1 se usan para retornar valores o para definir servicios en llamadas \texttt{syscall}.\\
+\$ra (return address) guarda la dirección de retorno tras una llamada a subrutina con \texttt{jal}.\\
+En esta práctica, \$a0 fue utilizado para imprimir datos, y \$v0 para invocar servicios del sistema como imprimir enteros o finalizar el programa. \$ra no se utilizó ya que Bubble Sort fue implementado directamente dentro del \texttt{main}, sin subrutinas. En una versión modular o en QuickSort (que puede implementarse recursivamente), el uso de \$ra sería esencial para manejar los retornos correctamente.
+
+\section{Impacto del uso de registros frente a memoria}
+El acceso a registros es considerablemente más rápido que a memoria. En Bubble Sort, los registros se usaron para índices, comparaciones y banderas, reduciendo los accesos a memoria. En cada iteración, los valores se cargaban, manipulaban en registros, y solo se escribían de vuelta si se necesitaba un intercambio. Esto reduce el uso de instrucciones costosas como \texttt{lw} y \texttt{sw}.
+
+Si el algoritmo operara directamente sobre memoria sin usar registros, aumentaría la latencia y se ralentizaría la ejecución. En MIPS32, los registros ejecutan en un ciclo, mientras que la memoria puede tardar varios.\\
+En QuickSort, se usan más accesos a memoria debido a la necesidad de pila para recursividad, pero se compensa con menos comparaciones, logrando mejor rendimiento general que Bubble Sort en arreglos grandes.
+
+\section{Estructuras de control y eficiencia}
+Bubble Sort usa bucles anidados que repiten muchas comparaciones. QuickSort usa división recursiva del arreglo, lo que disminuye el número de comparaciones promedio. MIPS exige uso explícito de instrucciones de control como \texttt{beq}, \texttt{bne}, \texttt{j}, haciendo el manejo de control más delicado pero transparente.
+
+\section{Complejidad computacional}
+\begin{itemize}
+    \item \textbf{Bubble Sort:} Mejor caso: O(n); Peor y promedio caso: O(n²)
+    \item \textbf{QuickSort:} Promedio: O(n log n); Peor caso: O(n²) (mal pivote)
+\end{itemize}
+QuickSort, pese a su complejidad, es más eficiente en la mayoría de casos, y su implementación requiere un mejor manejo de recursos.
+
+\section{Fases del ciclo de ejecución en MIPS32}
+\begin{enumerate}
+    \item \textbf{Fetch}: Se obtiene la instrucción desde memoria.
+    \item \textbf{Decode}: Se decodifica y se leen registros fuente.
+    \item \textbf{Execute}: Se realiza la operación en la ALU.
+    \item \textbf{Memory}: Acceso a memoria si aplica.
+    \item \textbf{Write Back}: Se escribe el resultado al registro destino.
+\end{enumerate}
+
+\section{Tipos de instrucciones predominantes}
+\begin{itemize}
+    \item \textbf{Tipo R:} \texttt{add}, \texttt{sub}, \texttt{mul} para operaciones con registros.
+    \item \textbf{Tipo I:} \texttt{lw}, \texttt{sw}, \texttt{beq}, \texttt{bne} para memoria y control.
+    \item \textbf{Tipo J:} \texttt{j} para saltos incondicionales.
+\end{itemize}
+
+\section{Efecto del abuso de instrucciones de salto}
+Demasiados saltos dificultan la lectura del código, aumentan la posibilidad de errores lógicos y pueden crear bucles infinitos. Estructuras de control claras y bien delimitadas son fundamentales en MIPS para mantener eficiencia y depuración efectiva.
+
+\section{Ventajas del modelo RISC de MIPS}
+\begin{itemize}
+    \item Instrucciones uniformes y sencillas.
+    \item Mayor previsibilidad y velocidad de ejecución.
+    \item Ideal para la enseñanza de arquitectura y bajo nivel.
+\end{itemize}
+
+\section{Uso de Step/Step Into en MARS}
+Permiten la ejecución línea por línea, observando cómo se modifican los registros y memoria. En QuickSort, fue esencial para validar que el control recursivo y la manipulación de la pila se realizaban correctamente.
+
+\section{Herramientas más útiles en MARS}
+\begin{itemize}
+    \item \textbf{Register Panel:} observación de registros en tiempo real.
+    \item \textbf{Data Segment:} ver el arreglo en memoria.
+    \item \textbf{Instruction Step:} control fino del flujo de ejecución.
+\end{itemize}
+
+\section{Visualización del camino de datos}
+\textbf{Tipo R (add):} La ALU suma dos registros fuente y escribe en un destino.\\
+\textbf{Tipo I (lw):} Suma base y offset para acceder a memoria y carga al registro destino.
+
+\section{Justificación del algoritmo alternativo}
+QuickSort fue elegido por su mejor rendimiento promedio (O(n log n)) y su capacidad de manejar grandes volúmenes de datos eficientemente. Implementarlo en MIPS exige control manual de pila, segmentación y condiciones de partición, fortaleciendo habilidades en bajo nivel.
+
+\section{Análisis y discusión de resultados}
+Bubble Sort fue fácil de implementar pero mostró limitaciones para arreglos grandes. QuickSort, aunque más complejo, fue más rápido y eficiente. Su desarrollo involucró el uso de pila, recursión y segmentación, ofreciendo una experiencia completa en la arquitectura MIPS.
+
+\section*{Conclusión}
+Esta práctica consolidó conocimientos fundamentales sobre la arquitectura MIPS32 y su aplicación a problemas algorítmicos. La comparación entre algoritmos evidenció la importancia de elegir bien según el contexto. MARS permitió una visualización clara y un entorno adecuado para la depuración.
+
+\end{document}
