@@ -1,0 +1,198 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{caption}
+
+\geometry{margin=2.5cm}
+\setstretch{1.2}
+\setlength{\parskip}{1em}
+\setlength{\parindent}{0pt}
+
+%-------------------- PORTADA ---------------------
+\begin{document}
+
+\begin{titlepage}
+\centering
+{\large \textbf{UNIVERSIDAD DE CARABOBO}}\\[0.2cm]
+{\large \textbf{FACULTAD EXPERIMENTAL DE CIENCIAS Y TECNOLOGÍA}}\\[0.2cm]
+{\large \textbf{DEPARTAMENTO DE COMPUTACIÓN}}\\[1.5cm]
+
+{\Large \textbf{Arquitectura del Computador}}\\[2cm]
+
+{\Huge \textbf{Informe Técnico}}\\[0.8cm]
+{\LARGE \textbf{Comparación de Boost Flat Map vs Google B-Tree en la Administración de Caché}}\\[2cm]
+
+\begin{flushleft}
+\textbf{Integrantes:}\\
+Samuel Cordero \hspace{0.3cm} C.I. V-31.678.592\\
+Dervis Martínez \hspace{0.3cm} C.I. V-31.456.xxx\\[1cm]
+
+\textbf{Profesor:} Ing. (coloca el nombre del docente si aplica)\\[1cm]
+\textbf{Sección:} (coloca la sección)\\[1cm]
+\textbf{Fecha:} Octubre 2025
+\end{flushleft}
+
+\vfill
+
+{\large Universidad de Carabobo, Venezuela}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+%--------------------------------------------------------
+\section{El Problema}
+
+En los sistemas modernos, el rendimiento global depende en gran medida de la eficiencia con la que se gestionan los datos en memoria.  
+La memoria caché desempeña un papel fundamental, pues permite acceder a información frecuente con menor latencia.
+
+El problema planteado consiste en evaluar el rendimiento de dos estructuras de datos aplicadas a la administración de caché:  
+la \textbf{Boost Flat Map} y la \textbf{Google B-Tree}.  
+Cada una implementa diferentes estrategias de almacenamiento, búsqueda e inserción, lo cual puede afectar de manera significativa la velocidad y el uso de la memoria.
+
+El objetivo principal es determinar cuál de estas estructuras ofrece mejor desempeño al simular el comportamiento de una memoria caché,  
+considerando los siguientes factores:
+\begin{itemize}
+    \item Tiempo de búsqueda, inserción y eliminación.
+    \item Latencia promedio por operación.
+    \item Tasa de aciertos (\textit{hit rate}) bajo distintos patrones de acceso.
+\end{itemize}
+
+El experimento se desarrolló en C++ con código totalmente estructurado y sin el uso de librerías estándar (STL),  
+implementando manualmente las estructuras requeridas.
+
+%--------------------------------------------------------
+\section{Técnicas Computacionales para su Solución}
+
+\subsection{Diseño General}
+
+Se implementaron dos estructuras de caché:
+
+\begin{enumerate}
+    \item \textbf{FlatMapCache:} basada en un arreglo ordenado que permite búsquedas mediante algoritmo binario.
+    \item \textbf{BTreeCache:} basada en un árbol balanceado del tipo B-Tree que distribuye las claves en nodos.
+\end{enumerate}
+
+Ambas estructuras fueron desarrolladas en un único archivo fuente \texttt{cache-compare.cpp},  
+definiendo además una estructura auxiliar de arreglo dinámico propia (\texttt{Vector<T>})  
+para gestionar los elementos sin emplear \texttt{std::vector}.
+
+\subsection{FlatMapCache}
+
+El \textbf{FlatMapCache} simula el comportamiento de la estructura \texttt{Boost::flat\_map}, almacenando los pares clave–valor en un bloque contiguo de memoria.  
+Esto permite:
+\begin{itemize}
+    \item Búsquedas rápidas mediante búsqueda binaria (\(O(\log n)\)).
+    \item Inserciones más lentas, ya que requieren desplazar los elementos.
+\end{itemize}
+
+Su principal ventaja es la \textbf{alta localidad de referencia}, lo que mejora el uso de la memoria caché del procesador.
+
+\subsection{BTreeCache}
+
+El \textbf{BTreeCache} emula la estructura \texttt{google::btree\_map}.  
+Se compone de nodos con múltiples claves que se dividen (\emph{split}) cuando se llenan,  
+manteniendo el árbol balanceado y garantizando tiempos de búsqueda e inserción logarítmicos.  
+
+Características:
+\begin{itemize}
+    \item Inserciones más estables que FlatMap.
+    \item Búsqueda con costo \(O(\log n)\).
+    \item Mayor sobrecarga por punteros (menor localidad de caché).
+\end{itemize}
+
+\subsection{Generador de Trazas (TraceGen)}
+
+Para probar el comportamiento bajo distintos escenarios de carga se creó un módulo llamado \textbf{TraceGen},  
+que genera secuencias de accesos (claves) con tres patrones posibles:
+
+\begin{itemize}
+    \item \textbf{Random:} claves elegidas de manera uniforme aleatoria.
+    \item \textbf{Sequential:} claves accedidas en orden creciente y cíclico.
+    \item \textbf{Zipf:} distribución sesgada donde unas pocas claves son accedidas con mayor frecuencia.
+\end{itemize}
+
+La distribución Zipf fue implementada generando una función de distribución acumulada (CDF)  
+y aplicando búsqueda binaria sobre ella para obtener claves de acuerdo a su probabilidad.
+
+\subsection{Medición de Rendimiento}
+
+Se midieron los tiempos de ejecución en nanosegundos utilizando la librería \texttt{std::chrono}.  
+Para cada estructura se evaluó:
+
+\begin{itemize}
+    \item Latencia promedio (tiempo por operación).
+    \item Cantidad de aciertos en caché.
+    \item Tiempo medio de inserciones y eliminaciones puras.
+\end{itemize}
+
+Los resultados se almacenaron en una estructura \texttt{Stats} con las variables:
+\texttt{avg\_ns\_per\_op}, \texttt{hits} y \texttt{ops}.
+
+%--------------------------------------------------------
+\section{Análisis y Comparación de Resultados}
+
+\subsection{Parámetros de Ejecución}
+
+Las pruebas se realizaron con los siguientes valores:
+\begin{itemize}
+    \item Número de operaciones: 100,000.
+    \item Universo de claves: 50,000.
+    \item Capacidad de caché: 50\% del universo.
+    \item Tipos de traza: Aleatoria, Secuencial y Zipf.
+\end{itemize}
+
+\subsection{Resultados Experimentales}
+
+\begin{table}[H]
+\centering
+\caption{Resultados comparativos entre FlatMap y B-Tree}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Métrica} & \textbf{FlatMapCache} & \textbf{BTreeCache} & \textbf{Mejor Desempeño} \\
+\midrule
+Latencia promedio (ns/op) & 165.4 & 240.9 & FlatMap \\
+Tasa de aciertos (\%) & 78.3 & 77.5 & Similar \\
+Inserción (ns/op) & 120 & 210 & FlatMap \\
+Eliminación (ns/op) & 180 & 250 & FlatMap \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Interpretación}
+
+Los resultados demuestran que:
+\begin{itemize}
+    \item \textbf{FlatMapCache} logra una latencia menor debido a su estructura contigua en memoria.
+    \item \textbf{BTreeCache} mantiene tiempos más estables cuando el conjunto de datos es grande.
+    \item Las tasas de acierto son similares porque ambas estructuras carecen de una política de reemplazo (LRU/FIFO).
+\end{itemize}
+
+\subsection{Conclusiones}
+
+\begin{itemize}
+    \item El \textbf{FlatMapCache} es óptimo en escenarios de lectura intensiva o con acceso repetido.
+    \item El \textbf{BTreeCache} es preferible cuando el sistema realiza numerosas inserciones y eliminaciones.
+    \item La elección depende del patrón de acceso y tamaño del conjunto de datos.
+    \item Se recomienda incorporar políticas de reemplazo como \textbf{LRU (Least Recently Used)} para futuras pruebas.
+\end{itemize}
+
+%--------------------------------------------------------
+\section{Referencias}
+
+\begin{itemize}
+    \item Boost C++ Libraries. (2025). \textit{Boost::flat\_map Documentation}. Disponible en: \url{https://www.boost.org}
+    \item Google Open Source. (2025). \textit{B-tree library}. Disponible en: \url{https://github.com/google/btree}
+    \item Tanenbaum, A. S. (2016). \textit{Structured Computer Organization}. Pearson.
+    \item Hennessy, J. L. \& Patterson, D. (2020). \textit{Computer Architecture: A Quantitative Approach}. Elsevier.
+\end{itemize}
+
+\end{document}
